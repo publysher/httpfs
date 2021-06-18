@@ -155,8 +155,16 @@ func TestWithCacheDir(t *testing.T) {
 			t.Errorf("while fetching from cache: %v", err)
 		}
 
+		second, err := fs.ReadFile(httpFS, file) // should come from cache
+		if err != nil {
+			t.Errorf("while fetching cached remote: %v", err)
+		}
+
 		if !reflect.DeepEqual(remote, local) {
 			t.Errorf("Cached == %s, want %s", local, remote)
+		}
+		if !reflect.DeepEqual(remote, second) {
+			t.Errorf("Second fetch == %v, want %v", second, remote)
 		}
 	}
 }
