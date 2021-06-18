@@ -60,6 +60,10 @@ func openError(name string, cause error) error {
 	}
 }
 
+// Open issues a GET request to retrieve the named remote file. If caching is enabled, the file will be downloaded
+// immediately and subsequently served from the cache.
+//
+// In case of failure, Open will always return an *fs.PathError. The PathError might contain a StatusError.
 func (f FileSystem) Open(name string) (fs.File, error) {
 	if !fs.ValidPath(name) {
 		return nil, openError(name, fs.ErrInvalid)
@@ -114,12 +118,15 @@ func (f FileSystem) resolve(name string) (*url.URL, error) {
 
 func statError(name string, cause error) error {
 	return &fs.PathError{
-		Op:   "open",
+		Op:   "stat",
 		Path: name,
 		Err:  cause,
 	}
 }
 
+// Stat issues a HEAD request, making it cheaper than calling Open() followed by Stat().
+//
+// In case of failure, Stat will always return an *fs.PathError. The PathError might contain a StatusError.
 func (f FileSystem) Stat(name string) (fs.FileInfo, error) {
 	if !fs.ValidPath(name) {
 		return nil, statError(name, fs.ErrInvalid)
